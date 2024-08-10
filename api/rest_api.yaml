@@ -1,0 +1,666 @@
+openapi: 3.0.3
+info:
+  title: Swagger SocialNetworkSystemDesign - OpenAPI 3.0
+  description: |-
+   System Design социальной сети для курса по System Design.
+  contact:
+    email: alxdr.olkhovik@ya.ru
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: https://{domain}/api/v1
+tags:
+
+  - name: auth
+    description: Аутентификация и авторизация
+    
+  - name: me
+    description: Текущий авторизованный пользователь
+
+  - name: users
+    description: Путешественники
+
+  - name: posts
+    description: Посты
+
+  - name: places
+    description: Места для путешествий
+
+      
+paths:
+  /me/posts:
+    post:
+      tags:
+        - me
+      summary: Добавить пост для текущего пользователя
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPost'
+      security:
+        - login_security:
+            - posts:read
+            
+  /me/subscriptions:
+    get:
+      tags:
+        - me
+      summary: получить пользователей на которых подписан текущий пользователь
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscriptions'          
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
+      security:
+        - login_security:
+            - users:read
+            
+  /me/feeds:
+    get:
+      tags:
+        - me
+      summary: получить ленту текущего пользователя
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feeds'          
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
+      security:
+        - login_security:
+            - posts:read
+            
+  /users/{userId}/subscribe:
+    post:
+      tags:
+        - users
+      summary: Подписаться на пользователя
+      parameters:
+        - name: userId
+          in: path
+          description: ID пользователя на которого нужно подписаться
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
+      security:
+        - login_security:
+            - users:write
+  
+  /users/{userId}/feeds:
+    get:
+      tags:
+        - users
+      summary: получить ленту пользователя
+      parameters:
+        - name: userId
+          in: path
+          description: ID пользователя на которого нужно подписаться
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feeds'          
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
+      security:
+        - login_security:
+            - users:read
+            
+  /posts/{id}:
+    get:
+      tags:
+        - posts
+      summary: Получить данные одного поста
+      parameters:
+        - name: id
+          in: path
+          description: ID поста
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Post'          
+        '400':
+          description: Invalid status value
+      security:
+        - login_security:
+            - posts:read
+            
+  /posts/{id}/comments:
+    post:
+      tags:
+        - posts
+      summary: Добавить комментарий к посту
+      parameters:
+        - name: id
+          in: path
+          description: ID поста
+          required: true
+          schema:
+            type: integer
+            format: int64
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewComment'
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid status value
+      security:
+        - login_security:
+            - posts:write
+            
+    get:
+      tags:
+        - posts
+      summary: Получить комментарии поста
+      parameters:
+        - name: id
+          in: path
+          description: ID поста
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Comments'
+        '400':
+          description: Invalid status value
+      security:
+        - login_security:
+            - posts:read
+            
+  /posts/{id}/likes:
+    post:
+      tags:
+        - posts
+      summary: Оценить пост
+      parameters:
+        - name: id
+          in: path
+          description: ID поста
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid status value
+      security:
+        - login_security:
+            - posts:write
+    
+    delete:
+      tags:
+        - posts
+      summary: Удалить оценку поста
+      parameters:
+        - name: id
+          in: path
+          description: ID поста
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid status value
+      security:
+        - login_security:
+            - posts:write
+            
+    get:
+      tags:
+        - posts
+      summary: Получить оценки поста
+      parameters:
+        - name: id
+          in: path
+          description: ID поста
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/PostLikes'
+        '400':
+          description: Invalid status value
+      security:
+        - login_security:
+            - posts:read
+            
+  
+            
+  /places/search:
+    get:
+      tags:
+        - places
+      summary: Получить места по поисковой фразе
+      parameters:
+        - name: q
+          in: query
+          description: ID поста
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Places'          
+        '400':
+          description: Invalid status value
+      security:
+        - login_security:
+            - posts:read
+            
+  /places/{id}:
+    get:
+      tags:
+        - places
+      summary: Получить посты для места по ID
+      parameters:
+        - name: id
+          in: path
+          description: ID места
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Posts'          
+        '400':
+          description: Invalid status value
+      security:
+        - login_security:
+            - posts:read
+            
+  /auth/login:
+    get:
+      tags:
+        - auth
+      summary: OAuth2.0 Authorization Code flow
+      responses:
+        '302':
+          description: редирект на сторонний сервис авторизации.
+  
+  /auth/token:
+    post:
+      tags:
+        - auth
+      summary: Получение и обмен Authorization Code, получение и сохранение AccessToken от стороннего сервиса авторизации
+      responses:
+        '200':
+          description: токен успешно сохранен
+
+components:
+  schemas:
+    NewMediaFile:
+      type: object
+      properties:
+        file: 
+          type: string
+          format: binary
+          
+    NewPost:
+      type: object
+      properties:
+          description:
+            type: string
+            nullable: true
+            maxLength: 1500
+          idempotencyKey: 
+            type: string
+            maxLength: 64
+          files:
+            type: array
+            nullable: false
+            maxItems: 3
+            items:
+              $ref: '#/components/schemas/NewMediaFile'
+          geo:
+            type: object
+            nullable: true
+            properties:
+              longitude:
+                type: string
+                maxLength: 20
+              latitude:
+                type: string
+                maxLength: 20
+                
+    NewComment:
+      type: object
+      properties:
+        text:
+          type: string
+          maxLength: 1500
+          example: хороший пост...
+  
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        nickname: 
+          type: string
+          maxLength: 32
+        createdAt:
+          type: string
+          format: date-time
+          
+    Subscriptions:
+      type: object
+      properties:
+        items: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/User'
+        pagination:
+          type: object
+          properties:
+            offset:
+              type: integer
+              format: int32
+            limit:
+              type: integer
+              example: 10
+              format: int32
+        
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        user:
+            $ref: '#/components/schemas/User'
+        description:
+            type: string
+            nullable: true
+            maxLength: 1500
+        countLikes:
+          type: integer
+          format: int64
+          example: 2516
+        countComments:
+          type: integer
+          format: int64
+          example: 15217
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostFile'
+        createdAt:
+          type: string
+          format: date-time
+          
+    Posts:
+      type: object
+      properties:
+        items: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/Post'
+        pagination:
+          type: object
+          properties:
+            offset:
+              type: integer
+              format: int32
+            limit:
+              type: integer
+              example: 10
+              format: int32
+        
+    Feeds:
+      type: object
+      properties:
+        items: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/Post'
+        pagination:
+          type: object
+          properties:
+            offset:
+              type: integer
+              format: int32
+            limit:
+              type: integer
+              example: 10
+              format: int32
+      
+    PostFile:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1234567
+        orderNumber:
+          type: integer
+          format: int32
+          example: 3
+        file: 
+          $ref: '#/components/schemas/MediaFile'
+        postId: 
+          $ref: '#/components/schemas/Post'
+        
+    MediaFile:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1234567
+        link:
+          type: string
+          description: полный URL к файлу
+          example: полный URL к файлу
+        type:
+          type: string
+          description: тип файла
+          enum:
+            - picture
+        createdAt:
+          type: string
+          format: date-time
+          
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 100000
+        text:
+          type: string
+          maxLength: 1500
+          example: хороший пост...
+        user:
+          $ref: '#/components/schemas/User'
+        createdAt:
+          type: string
+          format: date-time
+          
+    Comments:
+      type: object
+      properties:
+        items: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/Comment'
+        pagination:
+          type: object
+          properties:
+            offset:
+              type: integer
+              format: int32
+            limit:
+              type: integer
+              example: 10
+              format: int32
+        
+    Like:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 100000
+        user:
+          $ref: '#/components/schemas/User'
+          
+    PostLikes:
+      type: object
+      properties:
+        items: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/Like'
+        pagination:
+          type: object
+          properties:
+            offset:
+              type: integer
+              format: int32
+            limit:
+              type: integer
+              example: 10
+              format: int32
+              
+    Places:
+      type: object
+      properties:
+        items: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/Place'
+        pagination:
+          type: object
+          properties:
+            offset:
+              type: integer
+              format: int32
+            limit:
+              type: integer
+              example: 10
+              format: int32
+              
+    Place:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 123
+        description:
+          type: string
+          maxLength: 3000
+        posts: 
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Post'
+            pagination:
+              type: object
+              properties:
+                offset:
+                  type: integer
+                  format: int32
+                limit:
+                  type: integer
+                  example: 10
+                  format: int32
+        
+  securitySchemes:
+    login_security:
+      type: oauth2
+      flows:
+        authorizationCode:
+          tokenUrl: /auth/token
+          authorizationUrl: /oauth/authorize
+          scopes:
+            users:write: подписки на пользователей
+            users:read: получение пользователей
+            posts:read: получение постов
+            posts:write: добавление и модификация постов
+            
