@@ -1,16 +1,21 @@
 // Use DBML to define your database structure
 // Docs: https://dbml.dbdiagram.io/docs
 
+//replication - master-slave, async
+//replication factor - 2
+
 enum fileType {
   picture
 }
 
+//sharding - key based: [id]
 Table users {
   id integer [primary key]
   nickname varchar(32)
   created_at timestamp
 }
 
+//sharding - key based: [user_id]
 Table posts {
   id integer [primary key]
   user_id integer
@@ -22,6 +27,7 @@ Table posts {
   created_at timestamp
 }
 
+//sharding - key based: [post_id]
 Table comments {
   id integer [primary key]
   post_id integer
@@ -30,6 +36,7 @@ Table comments {
   created_at timestamp
 }
 
+//sharding - key based: [post_id]
 Table media_files {
   id integer [primary key]
   link varchar
@@ -37,6 +44,7 @@ Table media_files {
   created_at timestamp
 }
 
+//sharding - key based: [post_id]
 Table post_files {
   id integer [primary key]
   order_number integer
@@ -44,12 +52,14 @@ Table post_files {
   file_id integer
 }
 
+//sharding - key based: [post_id]
 Table likes {
   id integer [primary key]
   user_id integer
   post_id integer
 }
 
+//sharding - key based: [user_id]
 Table subscriptions {
   id integer [primary key]
   user_id integer
@@ -57,6 +67,7 @@ Table subscriptions {
   related_user_id integer
 }
 
+//sharding - key based: [post_id]
 Table geo_posts {
   id integer [primary key]
   post_id integer
@@ -64,6 +75,7 @@ Table geo_posts {
   latitude float
 }
 
+//sharding - key based: [id]
 Table places {
   id integer [primary key]
   name varchar(3000)

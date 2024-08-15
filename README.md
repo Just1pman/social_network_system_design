@@ -41,6 +41,9 @@ System Design социальной сети для курса по [System Des
 
 ## Базовые расчёты:
 
+    0. Примем для расчётов что на одном хосте у нас будет по 2 диска.
+    1. Replication factor = 2
+
 ### Посты:
 RPS (создание):
 
@@ -63,6 +66,8 @@ Storage. (для хранения media) Используем максималь
     Disks_for_throughput = 350MB / 500MB/s SSD(SATA) = 1 диск
     Disks_for_iops = 350 + 1150 / 500 SSD(SATA) = 4 диска
     Итог: 86 дисков SSD(SATA)
+    Хостов: 86 / 2 * 2 = 86 хостов
+
 
 Storage. (Для хранения постов) Для расчётов используем максимальные значения. Срок 1 год.
 
@@ -72,6 +77,7 @@ Storage. (Для хранения постов) Для расчётов испо
     Disks_for_throughput = 542KB/s / 500MB/s SSD(SATA) = 1 диск
     Disks_for_iops = 350 + 1150 / 500 SSD(SATA) = 4 диска
     Итог: 5 дисков SSD(SATA)
+    Хостов: 5 / 2 * 2 = 5 хостов
 
 
 ### Лайки:
@@ -91,6 +97,7 @@ Storage. Примем размер данных передаваемых по с
     Disks_for_throughput = 77KB/s / 500MB/s SSD(SATA) = 1 диск
     Disks_for_iops = 600 + 1150 / 500 SSD(SATA) = 4 диска
     Итог: 4 диска SSD(SATA)
+    Хостов: 4 / 2 * 2 = 4 хоста
 
 ### Комментарии:
 RPS (добавление):
@@ -111,6 +118,7 @@ Storage:
      Disks_for_throughput = 125KB/s / 500MB/s SSD(SATA) = 1 диск
      Disks_for_iops = 250 + 5 / 500 SSD(SATA) = 1 диск
      Итог: 1 диск SSD(SATA)
+     Хостов: 1 / 2 * 2 = 1 хост
 
 
 Connections:
