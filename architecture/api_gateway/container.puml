@@ -1,0 +1,22 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Пользователь")
+Container(loadBalancer, "Load Balancer", "Nginx", "Least connections")
+
+Container(Other, "Other", "", "остальные системы")
+
+System_Ext(DNS, "DNS")
+
+System_Boundary(ApiGatewaySystem, "Api Gateway System") {
+    Container(ApiGateway, "Kong", "", "")
+    Container("ApiGatewayDatabase", "PgSQL", "хранит метаинформацию", $tags="db")
+}
+
+Rel(ApiGateway, ApiGatewayDatabase, "получение метаинформации", "PG Wire Protocol")
+Rel(user, DNS, "Получение IP адреса одного из Load Balancers", "REST")
+Rel(user, loadBalancer, "Постинг, лайки, комментарии, поиск и др.", "REST")
+Rel(loadBalancer, ApiGateway, "", "REST")
+Rel(ApiGateway, Other, "Проксирование запросов к остальным сервисам", "REST")
+
+@enduml
