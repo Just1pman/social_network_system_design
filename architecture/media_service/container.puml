@@ -1,0 +1,28 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+System_Ext(CDN, "CDN")
+Container(ApiGateway, "ApiGateway", "", "")
+Container(ServiceDiscovery, "ServiceDiscovery", "Apache ZooKeeper", "")
+Container(CephLoadBalancer, "LoadBalancer", "Nginx", "")
+Container(ApiMediaLoadBalancer, "LoadBalancer", "Nginx", "")
+ContainerQueue(messageQueue, "Очередь сообщений", "Kafka", "Очередь для извлечения файлов которые нужно переместить")
+
+System_Boundary(MediaServiceSystem, "Media Service System") {
+    Container(Ceph, "Ceph", "S3", "S3 совместимое blob хранилище + embedded RocksDB")
+    Container(FileManager, "FileManager", "Go", "Проверка и удаление ненужных файлов")
+    Container(ApiMediaService, "ApiMediaService", "Go", "")
+}
+
+Rel(ApiGateway, ServiceDiscovery, "получение IP", "ZooKeeper Client Protocol(ZCP)")
+Rel(ApiGateway, ApiMediaLoadBalancer, "Загрузка файлов", "")
+Rel(ApiMediaLoadBalancer, ApiMediaService, "", "")
+Rel(ApiMediaService, ServiceDiscovery, "получение IP", "ZCP")
+Rel(FileManager, ServiceDiscovery, "получение IP", "ZCP")
+Rel(FileManager, CephLoadBalancer, "", "ZCP")
+Rel(FileManager, messageQueue, "", "TCP")
+Rel(CDN, CephLoadBalancer, "pull", "http")
+Rel(CephLoadBalancer, Ceph, "", "")
+Rel(ApiMediaService, CephLoadBalancer, "", "gRPC")
+
+@enduml
