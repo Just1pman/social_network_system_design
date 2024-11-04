@@ -1,0 +1,24 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Container(ApiGateway, "ApiGateway", "", "")
+Container(ServiceDiscovery, "ServiceDiscovery", "Apache ZooKeeper", "")
+Container(ApiUsersLoadBalancer, "LoadBalancer", "Nginx", "")
+ContainerQueue(messageQueue, "Очередь сообщений", "Kafka", "Для уведомления других сервисов о добавлении/удалении друзей")
+Container(NewsFeedService, "NewsFeedService", "", "")
+
+System_Boundary(UserServiceSystem, "User Service System") {
+    Container(ApiUserServiceDatabase, "PgSQL", "", $tags="db")
+    Container(ApiUserService, "ApiUserService", "Go", "")
+}
+
+Rel(ApiGateway, ServiceDiscovery, "", "ZCP")
+Rel(ApiGateway, ApiUsersLoadBalancer, "Добавление/удаление друзей", "gRPC")
+Rel(NewsFeedService, ApiUsersLoadBalancer, "Получение информации о пользователях для создания лент", "gRPC")
+Rel(ApiUsersLoadBalancer, ApiUserService, "", "gRPC")
+Rel(ApiUsersLoadBalancer, ServiceDiscovery, "", "ZCP")
+Rel(ApiUserService, ApiUserServiceDatabase, "", "")
+Rel(ApiUserService, messageQueue, "уведомление об изменении связей пользователей", "TCP")
+Rel(ApiUserService, ServiceDiscovery, "", "ZCP")
+
+@enduml
