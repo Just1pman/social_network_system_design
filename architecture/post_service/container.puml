@@ -1,0 +1,29 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Container(ApiGateway, "ApiGateway", "", "")
+Container(ServiceDiscovery, "ServiceDiscovery", "Apache ZooKeeper", "")
+Container(ApiPostLoadBalancer, "LoadBalancer", "Nginx", "")
+ContainerQueue(messageQueue, "Очередь сообщений", "Kafka", "Связь с сервисами MediaService и AnalyticsService")
+
+Container(NewsFeedService, "NewsFeedService", "", "")
+Container(PostLoadBalancer, "PostLoadBalancer", "", "")
+
+System_Boundary(PostServiceSystem, "Post Service System") {
+    Container(PostServiceDatabase, "PgSQL", "", $tags="db")
+    Container(ApiPostService, "ApiPostService", "Go", "")
+}
+
+Rel(ApiGateway, ServiceDiscovery, "", "ZCP")
+Rel(ApiGateway, ApiPostLoadBalancer, "Добавление/получение постов, лайков и комментариев", "gRPC")
+Rel(ApiPostLoadBalancer, ApiPostService, "", "gRPC")
+Rel(ApiPostLoadBalancer, ServiceDiscovery, "", "ZCP")
+Rel(ApiPostService, PostServiceDatabase, "", "")
+Rel(ApiPostService, messageQueue, "Уведомление о успешном добавлении/редактировании постов, о запросах на получение постов", "TCP")
+Rel(ApiPostService, ServiceDiscovery, "", "ZCP")
+
+Rel(NewsFeedService, PostLoadBalancer, "Получение информации о постах", "gRPC")
+Rel(NewsFeedService, ServiceDiscovery, "", "gRPC")
+Rel(PostLoadBalancer, ApiPostService, "", "gRPC")
+
+@enduml
