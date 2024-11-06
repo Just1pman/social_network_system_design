@@ -1,0 +1,22 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Container(ApiGateway, "ApiGateway", "", "")
+Container(ServiceDiscovery, "ServiceDiscovery", "Apache ZooKeeper", "")
+Container(ApiUsersLoadBalancer, "LoadBalancer", "Nginx", "")
+ContainerQueue(messageQueue, "Очередь сообщений", "Kafka", "")
+
+System_Boundary(SearchServiceSystem, "Search Service System") {
+    Container(UserElasticSearch, "Elasticsearch", "", $tags="db")
+    Container(ApiSearchService, "ApiSearchService", "Go", "")
+}
+
+Rel(ApiGateway, ApiUsersLoadBalancer, "Поиск постов", "gRPC")
+Rel(ApiUsersLoadBalancer, ApiSearchService, "", "gRPC")
+Rel(ApiUsersLoadBalancer, ServiceDiscovery, "", "ZCP")
+Rel(ApiSearchService, UserElasticSearch, "", "HTTP")
+Rel(ApiSearchService, messageQueue, "Получение постов из очереди для индексации и ранжирования", "TCP")
+Rel(messageQueue, ApiSearchService, "Передача информации о том, что ищут пользователи", "TCP")
+Rel(ApiSearchService, ServiceDiscovery, "", "ZCP")
+
+@enduml
