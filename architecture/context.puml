@@ -6,32 +6,31 @@ Person(dataAnalysts, "Аналитики данных")
 
 System(ApiGateway, "Api Gateway System", "Авторизация и аутентификация, логирование")
 System(PostService, "Post Service", "Логика работы с постами")
-System(PostReactionService, "PostReaction Service", "Логика работы с лайками и комментариями")
 System(MediaService, "Media Service", "Логика работы с медиафайлами")
 System(FileManagerService, "File Manager Service", "Логика удаления ненужных файлов")
 System(UserService, "User Service", "Логика работы с пользователями и связями между ними")
 System(SearchService, "Search Service", "Логика поиска")
 System(FeedService, "Feed Service", "Логика формирования и получения ленты постов")
 System_Ext(AnalyticsService, "Система аналитики", "Логика связанная с ранжированием постов на основе частоты поиска")
-System_Ext(CDN, "CDN", "Оптимизирует доставку статики")
+System_Ext(CDN, "CDN[pull]", "Оптимизирует доставку статики")
 
 Rel(user, CDN, "")
 Rel(user, ApiGateway, "Публикация постов, оценка и комментарии постов, подписка, поиск мест и просмотр постов, просмотр ленты других пользователей")
 
 Rel(ApiGateway, UserService, "")
 Rel(ApiGateway, MediaService, "")
-Rel(ApiGateway, PostReactionService, "")
 Rel(ApiGateway, SearchService, "")
 Rel(ApiGateway, PostService, "")
 Rel(ApiGateway, FeedService, "")
 
 Rel(CDN, MediaService, "")
 
-Rel(FeedService, UserService, "")
-Rel(FeedService, PostService, "")
+Rel(FeedService, UserService, "Получение пользователей")
+Rel(FeedService, PostService, "Получение постов")
 
 Rel(FileManagerService, MediaService, "Удаление неиспользуемых файлов")
-Rel(PostService, FileManagerService, "Удаление неиспользуемых файлов")
+Rel(PostService, FileManagerService, "Передача информации о файлах успешно загруженных постов")
+Rel(PostService, AnalyticsService, "Передача данных об искомых постах")
 
 Rel(SearchService, AnalyticsService, "Передача данных об искомых постах")
 Rel(AnalyticsService, SearchService, "Актуализация ранжирования постов на основе данных аналитики")
